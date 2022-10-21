@@ -1,3 +1,5 @@
+use std::io;
+
 #[derive(PartialEq)]
 enum Choice {
     ROCK,
@@ -34,17 +36,58 @@ fn play(player1: &Choice, player2: &Choice) -> Outcome{
 
 }
 
+fn getNumInput(cin: &io::Stdin) -> u8 {
+    let mut str_buff = String::new();
+    cin.read_line(&mut str_buff).ok();
+
+    str_buff.trim().parse::<u8>().unwrap()
+}
+
+
 fn main() {
-    let player1 = Choice::ROCK;
-    let player2 = Choice::SCISSORS;
-
-    let outcome = play(&player1, &player2);
     
-    let outcome_msg = match outcome {
-        Outcome::DRAW => "Draw!",
-        Outcome::PLAYER1_WIN => "Player 1 wins!",
-        Outcome::PLAYER2_WIN => "Player 2 wins!"
-    };
+    let cin = io::stdin();
 
-    println!("{outcome_msg}");
+    println!("How many rounds of rock paper scissors do you wish to play?");
+    let num_rounds = getNumInput(&cin);
+    println!();
+
+    let mut p1_wins = 0u8;
+    let mut p2_wins = 0u8;
+
+    for _ in 0..num_rounds {
+        println!("It is player 1's turn. 0=Rock, 1=Paper, 2=Scissors. Enter a number:");
+        let player1 = getNumInput(&cin);
+        println!("It is player 2's turn. 0=Rock, 1=Paper, 2=Scissors. Enter a number:");
+        let player2 = getNumInput(&cin);
+
+        let player1_choice = match player1 {
+            0 => Choice::ROCK,
+            1 => Choice::PAPER,
+            2 => Choice::SCISSORS,
+            _ => Choice::ROCK
+        };
+        let player2_choice = match player2 {
+            0 => Choice::ROCK,
+            1 => Choice::PAPER,
+            2 => Choice::SCISSORS,
+            _ => Choice::ROCK
+        };
+
+        let outcome = play(&player1_choice, &player2_choice);
+        match outcome {
+            Outcome::DRAW => {},
+            Outcome::PLAYER1_WIN => {p1_wins += 1;},
+            Outcome::PLAYER2_WIN => {p2_wins += 1;}
+        }
+
+    }
+
+    if p1_wins == p2_wins {
+        println!("Draw!");
+    } else if p1_wins > p2_wins {
+        println!("Player 1 wins!");
+    } else {
+        println!("Player 2 wins!");
+    }
 }
